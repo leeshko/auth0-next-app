@@ -1,8 +1,14 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import GitHub from "next-auth/providers/github";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    }),
+
     Credentials({
       name: "Credentials",
       credentials: {
@@ -16,8 +22,47 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!email || !password) {
           throw new CredentialsSignin("Please provide both email and password");
         }
-        return {};
+        return {
+          firstName: "Dima",
+          lastName: "MyLastName",
+          email: "my@email.com",
+          role: "dev",
+          id: "myId",
+        };
       },
     }),
   ],
+  pages: {
+    signIn: "/login",
+  },
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      console.log("-----------SignIn callback:", {
+        user,
+        account,
+        profile,
+        email,
+        credentials,
+      });
+      return true;
+    },
+    async redirect({ url, baseUrl }) {
+      console.log("-------Redirect callback:", { url, baseUrl });
+      return baseUrl;
+    },
+    async session({ session, user, token }) {
+      console.log("-----------Session callback:", { session, user, token });
+      return session;
+    },
+    async jwt({ token, user, account, profile, isNewUser }) {
+      console.log("----------JWT callback:", {
+        token,
+        user,
+        account,
+        profile,
+        isNewUser,
+      });
+      return token;
+    },
+  },
 });
