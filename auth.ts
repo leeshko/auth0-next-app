@@ -47,7 +47,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     async redirect({ url, baseUrl }) {
-      console.log("-------Redirect callback:", { url, baseUrl });
+      console.log(
+        "-------Redirect callback:",
+        process.env.GITHUB_CLIENT_ID,
+        process.env.GITHUB_CLIENT_SECRET
+      );
       return baseUrl;
     },
     async session({ session, user, token }) {
