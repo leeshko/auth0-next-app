@@ -1,12 +1,21 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
+import connectDB from "./lib/db";
+import { User } from "./models/User";
+import { compare } from "bcryptjs";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     GitHub({
       clientId: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    }),
+
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
 
     Credentials({
@@ -22,13 +31,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!email || !password) {
           throw new CredentialsSignin("Please provide both email and password");
         }
-        return {
-          firstName: "Dima",
-          lastName: "MyLastName",
-          email: "my@email.com",
-          role: "dev",
-          id: "myId",
+
+        await connectDB();
+
+        const user = await User.findOne({ email }).select("+password +role");
+
+        if (!user) {
+          throw new Error("Invalid email or password");
+        }
+
+        if (!user.password) {
+          throw new Error("Invalid email or password");
+        }
+
+        const isMatched = await compare(password, user.password);
+
+        if (!isMatched) {
+          throw new Error("Invalid password");
+        }
+
+        const userData = {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role,
+          id: user.id,
         };
+
+        return userData;
       },
     }),
   ],
@@ -44,7 +74,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email,
         credentials,
       });
-      return true;
+      if (account?.provider === "google") {
+        try {
+          const { email, name, image, id } = user;
+
+          await connectDB();
+          const alreadyUser = await User.findOne({ email });
+
+          if (!alreadyUser) {
+            await User.create({ email, name, image, authProviderId: id });
+          } else {
+            return true;
+          }
+        } catch (error) {
+          throw new Error("Error while creating user");
+        }
+      }
+
+      if (account?.provider === "credentials") {
+        return true;
+      } else {
+        return false;
+      }
     },
     async redirect({ url, baseUrl }) {
       console.log(
@@ -56,6 +107,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async session({ session, user, token }) {
       console.log("-----------Session callback:", { session, user, token });
+      if (token?.sub && token?.role) {
+        session.user.id = token.sub;
+        session.user.role = token.role;
+      }
       return session;
     },
     async jwt({ token, user, account, profile, isNewUser }) {
@@ -66,6 +121,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         profile,
         isNewUser,
       });
+      if (user) {
+        token.role = user.role;
+      }
       return token;
     },
   },
