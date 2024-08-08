@@ -7,9 +7,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getSession } from "@/lib/getSession";
+import { redirect } from "next/navigation";
 import React from "react";
 
-const Dashboard = () => {
+const Dashboard = async () => {
+  const session = await getSession();
+  const user = session?.user;
+
+  if (!user) redirect("/");
+
   return (
     <div className="flex min-h-screen">
       <div className="flex-1 bg-gray-100 dark:bg-gray-950">

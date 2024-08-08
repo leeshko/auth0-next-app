@@ -1,17 +1,16 @@
 import { login } from "@/action/user";
-import { auth, signIn } from "@/auth";
+import { signIn } from "@/auth";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getSession } from "@/lib/getSession";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import React from "react";
 
 const Login = async () => {
-  const session = await auth();
-
+  const session = await getSession();
   const user = session?.user;
-
   if (user) redirect("/");
 
   return (

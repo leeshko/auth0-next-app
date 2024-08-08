@@ -49,3 +49,9 @@ export const register = async (formData: FormData) => {
 
   redirect("/login");
 };
+
+export const fetchAllUsers = async () => {
+  await connectDB();
+  const users = await User.find({});
+  return users;
+};

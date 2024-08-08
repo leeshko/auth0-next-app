@@ -2,9 +2,9 @@ import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import { compare } from "bcryptjs";
 import connectDB from "./lib/db";
 import { User } from "./models/User";
-import { compare } from "bcryptjs";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -67,13 +67,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      console.log("---------SignIn callback:", {
-        user,
-        account,
-        profile,
-        email,
-        credentials,
-      });
+      // console.log("---------SignIn callback:", {
+      //   user,
+      //   account,
+      //   profile,
+      //   email,
+      //   credentials,
+      // });
       if (account?.provider === "google") {
         try {
           const { email, name, image, id } = user;
@@ -98,11 +98,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
     },
     async redirect({ url, baseUrl }) {
-      console.log(
-        "-------Redirect callback:",
-        process.env.GITHUB_CLIENT_ID,
-        process.env.GITHUB_CLIENT_SECRET
-      );
+      // console.log(
+      //   "-------Redirect callback:",
+      //   process.env.GITHUB_CLIENT_ID,
+      //   process.env.GITHUB_CLIENT_SECRET
+      // );
       return baseUrl;
     },
     async session({ session, user, token }) {
@@ -114,15 +114,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
     async jwt({ token, user, account, profile, isNewUser }) {
-      console.log("----------JWT callback:", {
-        token,
-        user,
-        account,
-        profile,
-        isNewUser,
-      });
+      // console.log("----------JWT callback:", {
+      //   token,
+      //   user,
+      //   account,
+      //   profile,
+      //   isNewUser,
+      // });
       if (user) {
-        token.role = user.role;
+        token.role = user?.role;
       }
       return token;
     },
