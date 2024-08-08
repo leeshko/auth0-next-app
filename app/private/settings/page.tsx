@@ -1,6 +1,6 @@
 import { fetchAllUsers } from "@/action/user";
 import { getSession } from "@/lib/getSession";
-import { User } from "@/models/User";
+// import { User } from "@/models/User";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -11,7 +11,7 @@ const Settings = async () => {
 
   if (!user) redirect("/login");
 
-  if (user?.role !== "admin") return redirect("/private/dashboard");
+  // if (user?.role !== "admin") return redirect("/private/dashboard");
 
   const allUsers = await fetchAllUsers();
 
@@ -28,7 +28,7 @@ const Settings = async () => {
         </thead>
 
         <tbody>
-          {allUsers?.map((user) => (
+          {/* {allUsers?.map((user) => (
             <tr key={user._id}>
               <td className="p-2">{user.firstName}</td>
               <td className="p-2">{user.lastName}</td>
@@ -36,7 +36,7 @@ const Settings = async () => {
                 <form
                   action={async () => {
                     "use server";
-                    await User.findByIdAndDelete(user._id);
+                    // await User.findByIdAndDelete(user._id);
                   }}
                 >
                   <button className="px-2 py-1 text-red-500 hover:bg-red-100 rounded focus:outline-none">
@@ -45,7 +45,7 @@ const Settings = async () => {
                 </form>
               </td>
             </tr>
-          ))}
+          ))} */}
         </tbody>
       </table>
     </div>

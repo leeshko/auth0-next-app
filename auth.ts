@@ -3,8 +3,8 @@ import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import { compare } from "bcryptjs";
-import connectDB from "./lib/db";
-import { User } from "./models/User";
+// import connectDB from "./lib/db";
+// import { User } from "./models/User";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -32,33 +32,39 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new CredentialsSignin("Please provide both email and password");
         }
 
-        await connectDB();
+        // await connectDB();
 
-        const user = await User.findOne({ email }).select("+password +role");
+        // const user = await User.findOne({ email }).select("+password +role");
 
-        if (!user) {
-          throw new Error("Invalid email or password");
-        }
+        // if (!user) {
+        //   throw new Error("Invalid email or password");
+        // }
 
-        if (!user.password) {
-          throw new Error("Invalid email or password");
-        }
+        // if (!user.password) {
+        //   throw new Error("Invalid email or password");
+        // }
 
-        const isMatched = await compare(password, user.password);
+        // const isMatched = await compare(password, user.password);
 
-        if (!isMatched) {
-          throw new Error("Invalid password");
-        }
+        // if (!isMatched) {
+        //   throw new Error("Invalid password");
+        // }
 
-        const userData = {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          role: user.role,
-          id: user.id,
+        // const userData = {
+        //   firstName: user.firstName,
+        //   lastName: user.lastName,
+        //   email: user.email,
+        //   role: user.role,
+        //   id: user.id,
+        // };
+
+        return {
+          firstName: "Dima",
+          lastName: "MyLastName",
+          email: "my@email.com",
+          role: "dev",
+          id: "myId",
         };
-
-        return userData;
       },
     }),
   ],
@@ -74,28 +80,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       //   email,
       //   credentials,
       // });
-      if (account?.provider === "google") {
-        try {
-          const { email, name, image, id } = user;
+      // if (account?.provider === "google") {
+      //   try {
+      //     const { email, name, image, id } = user;
 
-          await connectDB();
-          const alreadyUser = await User.findOne({ email });
+      //     await connectDB();
+      //     const alreadyUser = await User.findOne({ email });
 
-          if (!alreadyUser) {
-            await User.create({ email, name, image, authProviderId: id });
-          } else {
-            return true;
-          }
-        } catch (error) {
-          throw new Error("Error while creating user");
-        }
-      }
+      //     if (!alreadyUser) {
+      //       await User.create({ email, name, image, authProviderId: id });
+      //     } else {
+      //       return true;
+      //     }
+      //   } catch (error) {
+      //     throw new Error("Error while creating user");
+      //   }
+      // }
 
-      if (account?.provider === "credentials") {
-        return true;
-      } else {
-        return false;
-      }
+      // if (account?.provider === "credentials") {
+      //   return true;
+      // } else {
+      //   return false;
+      // }
+      return false;
     },
     async redirect({ url, baseUrl }) {
       // console.log(
@@ -109,7 +116,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       console.log("-----------Session callback:", { session, user, token });
       if (token?.sub && token?.role) {
         session.user.id = token.sub;
-        session.user.role = token.role;
+        // session.user.role = token.role;
       }
       return session;
     },
@@ -122,7 +129,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       //   isNewUser,
       // });
       if (user) {
-        token.role = user?.role;
+        // token.role = user?.role;
       }
       return token;
     },
